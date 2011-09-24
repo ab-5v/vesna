@@ -50,7 +50,7 @@ module.exports = function(options, callback) {
             if (o.thread in cache) {
                 res.subject = cache[o.thread];
             } else {
-                Promise.when(provider.pop('subject')).then(function(){
+                Promise.when(pop('subject')).then(function(){
                     if (res.subject) {
                         cache[o.thread] = res.subject;
                     }
