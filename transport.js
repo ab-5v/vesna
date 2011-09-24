@@ -1,4 +1,7 @@
-var server = function(callback) {
+var http = require('http');
+var url = require('url');
+
+var server = function(controller) {
 
     http.createServer(function (req, res) {
         var params = url.parse(req.url, true);
@@ -8,8 +11,12 @@ var server = function(callback) {
 
         res.writeHead(200, {'Content-Type': 'application/javascript; charset=utf-8'});
 
-        callback(null, params, function(data){
-            res.end(data);
+        controller({}, function(err, data){
+            var result = JSON.stringify(data);
+            if (jsonp) {
+                result = jsonp + '(' + result + ')';
+            }
+            res.end(result);
         });
 
     }).listen(4001, "127.0.0.1");

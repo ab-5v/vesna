@@ -4,7 +4,7 @@ var url = require('url');
 var transport = require('./transport.js');
 var controller = require('./controller.js');
 
-if (process.argv.lenght === 2) {
+if (process.argv.length === 2) {
     transport.server(controller);
 } else {
     //

@@ -13,8 +13,9 @@ var data_provider = function() {
     }
 };
 
-data_provide.prototype = {
+data_provider.prototype = {
     pop: function(type, callback) {
+        return type;
     }
 };
 

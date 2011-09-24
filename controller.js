@@ -1,33 +1,65 @@
-var provider = new require('./data_provider.js');
+var DataProvider = require('./data_provider.js');
+var provider = new DataProvider();
 
 var cache = {};
 
-var probability = function(p) {
-    var n = 1/p;
-    return  Math.ceil(Math.random() * n) % n === 1;
+var random = function (from, to) {
+    if (!to) {return from-0;}
+    return Math.floor(Math.random() * (to - from + 1) + (from - 0));
+}
+var defaults = {
+    body: true,
+    subject: true,
+    link: '0',
+    attach: '0'
 }
 
-module.exports = function(params, callback) {
-    var links = !!params.links;
-    var thread = !!params.thread;
-    var attach = !!params.attach;
+module.exports = function(options, callback) {
+    var body, offset, link, attach;
+    var res = {};
+    var o = defaults;
 
-    var body = provider.pop('body');
-    var subject = provider.pop('subject');
-
-    if (links) {
-        body = body.replace(/\.\s/g, function() {
-            return probability(0.25) ? provider.pop('link') : '. ';
-        });
+    if (o.body) {
+        res.body = provider.pop('body');
     }
 
-    if (thread) {
-        if (thread in cache) {
-            subject = cache[thread];
+    if (o.subject) {
+        if (o.thread) {
+            if (o.thread in cache) {
+                res.subject = cache[o.thread];
+            } else {
+                res.subject = cache[o.thread] = provider.pop('subject');
+            }
         } else {
-            cache[thread] = subject;
+            res.subject = provider.pop('subject');
         }
     }
 
-    callback(params.jsonp + '(' + JSON.stringify(result) + ')\n');
+    link = random.apply(null, o.link.split('_'));
+
+    if (link) {
+        if (o.body) {
+            body = res.body.split('. ');
+            offset = Math.floor(body.length / link);
+            for (var i = 0, l = link.length; l--;) {
+                body.splice(i + offset, 0, '. ' + provider.pop('link') + ' ');
+            }
+        } else {
+            body = [];
+            while (link--) {
+                body.push(provider.pop('link'));
+            }
+        }
+        res.body = body.join('');
+    }
+
+    attach = random.apply(null, o.attach.split('_'));
+    if (attach) {
+        res.attach = [];
+        while (attach--) {
+            res.attach.push(provider.pop('link'));
+        }
+    }
+
+    callback(null, res);
 };
