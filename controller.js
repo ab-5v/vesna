@@ -1,3 +1,4 @@
+var Promise = require('./promise.js');
 var DataProvider = require('./data_provider.js');
 var provider = new DataProvider();
 
@@ -18,7 +19,7 @@ var extend = function (from, to) {
 }
 
 module.exports = function(options, callback) {
-    var body, offset, link, attach;
+    var body, offset, link, attach, pBody;
     var res = {};
     var o = extend({
         body: '1',
@@ -26,9 +27,22 @@ module.exports = function(options, callback) {
         link: '0',
         attach: '0'
     }, options);
+    var errs = [];
+    var promises = [];
+    var pop = function(type) {
+        var promise = provider.pop(type, function(err, data){
+            if (err) {
+                errs.push(err);
+            }
+            res[type] = data;
+        });
+
+        promises.push(promise);
+        return promise;
+    }
 
     if (o.body === '1') {
-        res.body = provider.pop('body');
+        pBody = pop('body');
     }
 
     if (o.subject === '1') {
@@ -36,13 +50,18 @@ module.exports = function(options, callback) {
             if (o.thread in cache) {
                 res.subject = cache[o.thread];
             } else {
-                res.subject = cache[o.thread] = provider.pop('subject');
+                Promise.when(provider.pop('subject')).then(function(){
+                    if (res.subject) {
+                        cache[o.thread] = res.subject;
+                    }
+                });
             }
         } else {
-            res.subject = provider.pop('subject');
+            pop('subject');
         }
     }
 
+    /**
     link = random.apply(null, o.link.split('_'));
 
     if (link) {
@@ -60,6 +79,15 @@ module.exports = function(options, callback) {
             res.attach.push(provider.pop('attach'));
         }
     }
+    */
 
-    callback(null, res);
+    Promise.when(promises).then(function(){
+        if (errs.length) {
+            var err = errs.reduce(function(a, b){
+                a.message + ' and ' + b.message;
+            }, {message: 'Failed:'});
+            return callback(err);
+        }
+        callback(null, res);
+    });
 };

@@ -10,16 +10,15 @@ var vesna = function() {
     };
 }
 vesna.prototype = {
-    handler: function(data) {
+    handle: function(data, callback) {
         var match = data.match(/\<h1[^\>]+\>Тема:\s([^\<]+)\<\/h1\>[^\<]*\<p\>([^\<]+)\<\/p\>[^\<]*\<p\>([^\<]+)/);
-        var thread = params.thread;
         if (match) {
-            return [{
+            callback(null, [{
                 subject: match[1].replace(/«|»/g, ''),
                 body: match[2].replace(/^\s|\n|\s$/g, '') + match[3].replace(/^\s|\n|\s$/g, '')
-            }]
+            }]);
         } else {
-            console.log("Parse error: ");
+            callback({message: "Parse error"});
         }
     }
 };
@@ -35,13 +34,17 @@ var digg = function() {
 }
 
 digg.prototype = {
-    handler: function(data) {
+    handle: function(data, callback) {
         var digs = {};
-        var o = JSON.parse(data);
+        try {
+            var o = JSON.parse(data);
+        } catch(e) {
+            callback(e);
+        }
         o.diggs.forEach(function(a){
             diggs.push({title: a.item.title, link: a.item.link});
         });
-        return diggs;
+        callback(null, diggs);
     },
     params: function(o) {
         var path = this.config.path;

@@ -11,11 +11,15 @@ var server = function(controller) {
         res.writeHead(200, {'Content-Type': 'application/javascript; charset=utf-8'});
 
         controller(query, function(err, data){
-            var result = JSON.stringify(data);
-            if (jsonp) {
-                result = jsonp + '(' + result + ')';
+            if (err) {
+                res.end(err.message);
+            } else {
+                var result = JSON.stringify(data);
+                if (jsonp) {
+                    result = jsonp + '(' + result + ')';
+                }
+                res.end(result);
             }
-            res.end(result);
         });
 
     }).listen(4001, "127.0.0.1");

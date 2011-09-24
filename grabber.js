@@ -9,6 +9,7 @@ var http = require('http');
 */
 module.exports = function(options, callback){
     var data = [];
+    var timeout;
 
     var req = http.get(options, function(prx) {
         prx.setEncoding('utf8');
@@ -16,16 +17,17 @@ module.exports = function(options, callback){
             data.push(chunk);
         });
         prx.on('end', function(){
+            clearTimeout(timeout);
             callback(null, data.join(''));
         })
     });
 
     req.on('error', function(e) {
-        console.log("Got error: " + e.message);
+        clearTimeout(timeout);
         callback(e);
     });
 
-    setTimeout(function(){
+    timeout = setTimeout(function(){
         req.abort();
         callback({message: 'timeout of ' + (options.timeout || 100) + ' reached'});
     }, options.timeout || 100);
