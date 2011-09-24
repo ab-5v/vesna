@@ -5,13 +5,12 @@ var server = function(controller) {
 
     http.createServer(function (req, res) {
         var params = url.parse(req.url, true);
-        var jsonp = params.query.callback || params.query.jsonp || '';
-        var thread = params.query.thread;
-        var link = params.query.link;
+        var query = params.query;
+        var jsonp = query.callback || query.jsonp;
 
         res.writeHead(200, {'Content-Type': 'application/javascript; charset=utf-8'});
 
-        controller({}, function(err, data){
+        controller(query, function(err, data){
             var result = JSON.stringify(data);
             if (jsonp) {
                 result = jsonp + '(' + result + ')';
