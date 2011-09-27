@@ -1,5 +1,7 @@
 var http = require('http');
 var url = require('url');
+var utils = require('./utils.js');
+var exec = require('child_process').exec
 
 var server = function(controller) {
 
@@ -27,8 +29,13 @@ var server = function(controller) {
     console.log('Server running at http://127.0.0.1:4001/');
 };
 
-var mailer = function(params) {
-
+var mailer = function(controller, params) {
+    controller(params.message, function(err, data){
+            console.log(arguments);
+        exec('echo  "' + data.body + '" | mail -s "' + data.subject + '" foginat5@yandex.ru -- -f ' + params.from[0], function (error, stdout, stderr) {
+            console.log(arguments);
+        });
+    });
 };
 
 module.exports = {
