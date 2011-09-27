@@ -42,7 +42,7 @@ data_provider.prototype = {
         if (cache.length) {
             finish(null, callback, promise, cache.shift());
         } else {
-            grabber(parser.config, function(err, data){
+            grabber(parser.config(), function(err, data){
                 if (err) {
                     return finish(err, callback, promise);
                 }

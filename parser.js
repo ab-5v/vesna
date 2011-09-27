@@ -3,13 +3,16 @@ var qs = require('querystring');
 // vesna.yandex.ru
 var vesna = function() {
     this.types = ['subject', 'body'];
-    this.config = {
+    this._config = {
         host: 'vesna.yandex.ru',
         port: 80,
         path: '/marketing.xml'
     };
 }
 vesna.prototype = {
+    config: function() {
+        return this._config;
+    },
     handle: function(data, callback) {
         var match = data.match(/\<h1[^\>]+\>Тема:\s([^\<]+)\<\/h1\>[^\<]*\<p\>([^\<]+)\<\/p\>[^\<]*\<p\>([^\<]+)/);
         if (match) {
@@ -25,17 +28,23 @@ vesna.prototype = {
 
 // digg.com
 var digg = function() {
-    this.types = ['links'];
-    this.config = {
+    this.types = ['link'];
+    this.offset = 0;
+    this._config = {
         host: 'services.digg.com',
         path: '/2.0/digg.getAll',
-        port: 80
+        port: 80,
+        timeout: 3000
     };
 }
 
 digg.prototype = {
+    config: function() {
+
+        return this._config;
+    },
     handle: function(data, callback) {
-        var digs = {};
+        var diggs = [];
         try {
             var o = JSON.parse(data);
         } catch(e) {

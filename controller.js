@@ -1,25 +1,16 @@
 var Promise = require('./promise.js');
+var utils = require('./utils.js');
 var DataProvider = require('./data_provider.js');
 var provider = new DataProvider();
 
 var cache = {};
 
-var random = function (from, to) {
-    if (!to) {return from-0;}
-    return Math.floor(Math.random() * (to - from + 1) + (from - 0));
-}
+var random = utils.random;
 
-var extend = function (from, to) {
-    for (var name in to) {
-        if (to[name] !== undefined) {
-            from[name] = to[name];
-        }
-    }
-    return from;
-}
+var extend = utils.extend;
 
 module.exports = function(options, callback) {
-    var body, offset, link, attach, pBody;
+    var body, offset, link, attach, pBody, pLink;
     var res = {};
     var o = extend({
         body: '1',
@@ -39,7 +30,8 @@ module.exports = function(options, callback) {
 
         promises.push(promise);
         return promise;
-    }
+    };
+
 
     if (o.body === '1') {
         pBody = pop('body');
@@ -61,17 +53,32 @@ module.exports = function(options, callback) {
         }
     }
 
-    /**
     link = random.apply(null, o.link.split('_'));
 
     if (link) {
-        body = [res.body || ''];
-        while (link--) {
-            body.push('\n' + provider.pop('link'));
-        }
-        res.body = body.join('');
+        pLink = new Promise();
+        promises.push(pLink);
+
+        Promise.when(pBody).then(function(){
+            var pLinks = [];
+            res.link = [];
+            while (link--) {
+                pLinks.push(provider.pop('link', function(err, data){
+                    if (err) {
+                        errs.push(err);
+                    }
+                    res['link'].push(data);
+                }));
+            }
+
+            Promise.when(pLinks).then(function(){
+                res.body = [res.body ? res.body : ''].concat(res['link']).join('\n');
+                pLink.resolve();
+            });
+        });
     }
 
+    /**
     attach = random.apply(null, o.attach.split('_'));
     if (attach) {
         res.attach = [];
@@ -83,9 +90,7 @@ module.exports = function(options, callback) {
 
     Promise.when(promises).then(function(){
         if (errs.length) {
-            var err = errs.reduce(function(a, b){
-                a.message + ' and ' + b.message;
-            }, {message: 'Failed:'});
+            var err = {message: errs.map(function(a){ return a.message;}).join(' and ')};
             return callback(err);
         }
         callback(null, res);

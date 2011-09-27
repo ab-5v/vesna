@@ -23,7 +23,7 @@ Promise.when = function() {
     var promises = Array.prototype.slice.call(arguments)
         // flatten
         .reduce(function(a, b){
-            if (b instanceof Array) {
+            if (Array.isArray(b)) {
                 a = a.concat(b);
             } else {
                 a.push(b);
@@ -32,7 +32,7 @@ Promise.when = function() {
         }, [])
         // filtering
         .filter(function(a){
-            return 'resolved' in a;
+            return a && ('resolved' in a);
         });
 
     return {
