@@ -56,4 +56,18 @@ Promise.when = function() {
     }
 };
 
+Promise.iterate = function(func, n) {
+    var iterator = new Promise();
+    var next = function() {
+        if (n > 0) {
+            n--;
+            Promise.when(func()).then(next);
+        } else {
+            iterator.resolve();
+        }
+    }
+    next();
+    return iterator;
+}
+
 module.exports = Promise;

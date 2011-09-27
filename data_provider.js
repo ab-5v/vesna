@@ -51,21 +51,22 @@ data_provider.prototype = {
                     if (err) {
                         return finish(err, callback, promise);
                     }
-                    var done = false;
+                    var result;
 
                     data.forEach(function(item){
                         for (var i in item) {
-                            if (!done && i === type) {
-                                done = true;
-                                return finish(null, callback, promise, item[i]);
+                            if (!result && i === type) {
+                                result = item[i];
                             } else if (i in that.parsers) {
                                 that.parsers[i].cache.push(item[i]);
                             }
                         }
                     });
 
-                    if (!done) {
-                        return finish(err, callback, promise);
+                    if (result) {
+                        return finish(null, callback, promise, result);
+                    } else {
+                        return finish("can't get item", callback, promise);
                     }
                 });
             });

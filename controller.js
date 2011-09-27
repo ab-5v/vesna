@@ -56,26 +56,23 @@ module.exports = function(options, callback) {
     link = random.apply(null, o.link.split('_'));
 
     if (link) {
-        pLink = new Promise();
-        promises.push(pLink);
-
-        Promise.when(pBody).then(function(){
-            var pLinks = [];
-            res.link = [];
-            while (link--) {
-                pLinks.push(provider.pop('link', function(err, data){
-                    if (err) {
-                        errs.push(err);
-                    }
-                    res['link'].push(data);
-                }));
-            }
-
-            Promise.when(pLinks).then(function(){
-                res.body = [res.body ? res.body : ''].concat(res['link']).join('\n');
-                pLink.resolve();
+        pLink = Promise.iterate(function(){
+            return provider.pop('link', function(err, data){
+                if (err) {
+                    errs.push(err);
+                }
+                if (!res['link']) {
+                    res['link'] = [];
+                }
+                res['link'].push(data);
             });
-        });
+        }, link);
+
+        Promise.when(pLink).then(function(){
+            res.body = [res.body ? res.body : ''].concat(res['link']).join('\n');
+        })
+
+        promises.push(pLink);
     }
 
     /**
