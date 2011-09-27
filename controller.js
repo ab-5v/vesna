@@ -1,7 +1,5 @@
 var Promise = require('./promise.js');
 var utils = require('./utils.js');
-var DataProvider = require('./data_provider.js');
-var provider = new DataProvider();
 
 var cache = {};
 
@@ -9,7 +7,7 @@ var random = utils.random;
 
 var extend = utils.extend;
 
-module.exports = function(options, callback) {
+module.exports = function(options, provider, callback) {
     var body, offset, link, attach, pBody, pLink;
     var res = {};
     var o = extend({
