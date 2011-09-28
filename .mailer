@@ -2,9 +2,16 @@
     "message": {
         "body": "1",
         "subject": "1",
-        "link": "0"
+        "link": "0.01_2",
+        "video": "0.1_1",
+        "thread": "1_3"
     },
     "from": [
-        "foginat@yandex.ru"
-    ]
+        "foginat2@yandex.ru",
+        "foginat3@yandex.ru",
+        "foginat4@yandex.ru",
+        "foginat5@yandex.ru",
+        "foginat6@yandex.ru"
+    ],
+    "to": "foginat8@yandex.ru"
 }
