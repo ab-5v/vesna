@@ -8,14 +8,15 @@ var random = utils.random;
 var extend = utils.extend;
 
 module.exports = function(options, provider, callback) {
-    var body, offset, link, attach, pBody, pLink, pVideo;
+    var body, offset, link, thread, attach, pBody, pLink, pVideo;
     var res = {};
     var o = extend({
         body: '1',
         subject: '1',
         link: '0',
         video: '0',
-        attach: '0'
+        attach: '0',
+        thread: '0'
     }, options);
     var errs = [];
     var promises = [];
@@ -37,13 +38,14 @@ module.exports = function(options, provider, callback) {
     }
 
     if (o.subject === '1') {
-        if (o.thread) {
-            if (o.thread in cache) {
-                res.subject = cache[o.thread];
+        thread = random.apply(null, o.thread.split('_'));
+        if (thread) {
+            if (thread in cache) {
+                res.subject = cache[thread];
             } else {
                 Promise.when(pop('subject')).then(function(){
                     if (res.subject) {
-                        cache[o.thread] = res.subject;
+                        cache[thread] = res.subject;
                     }
                 });
             }
