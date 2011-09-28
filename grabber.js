@@ -29,6 +29,6 @@ module.exports = function(options, callback){
 
     timeout = setTimeout(function(){
         req.abort();
-        callback({message: 'timeout of ' + (options.timeout || 100) + ' reached'});
-    }, options.timeout || 100);
+        callback({message: 'timeout of ' + (options.timeout || 300) + ' reached'});
+    }, options.timeout || 300);
 };

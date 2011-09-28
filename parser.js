@@ -40,7 +40,7 @@ var digg = function() {
 
 digg.prototype = {
     config: function() {
-        this.params({offset: this.offset++});
+        this.params({offset: this.offset+=10});
         return this._config;
     },
     handle: function(data, callback) {
