@@ -62,7 +62,7 @@ var mailer = function(controller, provider, params) {
             send(data, sending);
         });
         return sending;
-    }, 1);
+    }, params.n);
 };
 
 module.exports = {
