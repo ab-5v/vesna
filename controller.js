@@ -25,7 +25,11 @@ module.exports = function(options, provider, callback) {
             if (err) {
                 errs.push(err);
             }
-            res[type] = data;
+            if (!res[type]) {
+                res[type] = data;
+            } else {
+                res[type] = [res[type]].concat(data).join('\n');
+            }
         });
 
         promises.push(promise);
