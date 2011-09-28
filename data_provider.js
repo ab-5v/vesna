@@ -31,6 +31,7 @@ var data_provider = function() {
 
 data_provider.prototype = {
     pop: function(type, callback) {
+             console.log(arguments);
         var that = this;
         var parser = this.parsers[type] && this.parsers[type].parser;
         if (!parser) {

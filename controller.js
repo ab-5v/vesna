@@ -8,12 +8,13 @@ var random = utils.random;
 var extend = utils.extend;
 
 module.exports = function(options, provider, callback) {
-    var body, offset, link, attach, pBody, pLink;
+    var body, offset, link, attach, pBody, pLink, pVideo;
     var res = {};
     var o = extend({
         body: '1',
         subject: '1',
         link: '0',
+        video: '0',
         attach: '0'
     }, options);
     var errs = [];
@@ -71,6 +72,27 @@ module.exports = function(options, provider, callback) {
         })
 
         promises.push(pLink);
+    }
+
+    video = random.apply(null, o.video.split('_'));
+    if (video) {
+        pVideo = Promise.iterate(function(){
+            return provider.pop('video', function(err, data){
+                if (err) {
+                    errs.push(err);
+                }
+                if (!res['video']) {
+                    res['video'] = [];
+                }
+                res['video'].push(data);
+            });
+        }, video);
+
+        Promise.when(pVideo).then(function(){
+            res.body = [res.body ? res.body : ''].concat(res['video']).join('\n');
+        })
+
+        promises.push(pVideo);
     }
 
     /**

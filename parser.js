@@ -29,7 +29,7 @@ vesna.prototype = {
 // digg.com
 var digg = function() {
     this.types = ['link'];
-    this.offset = 0;
+    this.offset = 1;
     this._config = {
         host: 'services.digg.com',
         path: '/2.0/digg.getAll',
@@ -40,7 +40,7 @@ var digg = function() {
 
 digg.prototype = {
     config: function() {
-
+        this.params({offset: this.offset++});
         return this._config;
     },
     handle: function(data, callback) {
@@ -48,16 +48,20 @@ digg.prototype = {
         try {
             var o = JSON.parse(data);
         } catch(e) {
-            callback(e);
+            console.log(e);
         }
+        if (!o) {
+            return callback({message: 'Parse error'});
+        }
+
         o.diggs.forEach(function(a){
             diggs.push({title: a.item.title, link: a.item.link});
         });
         callback(null, diggs);
     },
     params: function(o) {
-        var path = this.config.path;
-        var parts = this.config.path.split('?');
+        var path = this._config.path;
+        var parts = path.split('?');
 
         if (!o) {
             return parts[1] && qs.parse(parts[1]) || {};
@@ -65,14 +69,64 @@ digg.prototype = {
 
         var cur = this.params();
         for (var i in o) {
-            cur[o] = o[i];
+            cur[i] = o[i];
         }
 
-        this.config.path = [parts[0], qs.stringify(cur)].join('?');
+        this._config.path = [parts[0], qs.stringify(cur)].join('?');
+    }
+};
+
+// youtube.com
+var youtube = function() {
+    this.types = ['video'];
+    this._config = {
+        host: 'gdata.youtube.com',
+        path: '/feeds/api/videos?alt=json',
+        port: 80,
+        timeout: 3000
+    };
+}
+
+youtube.prototype = {
+    config: function() {
+        return this._config;
+    },
+    handle: function(data, callback) {
+        var videos = [];
+        try {
+            var o = JSON.parse(data);
+        } catch(e) {
+            console.log(e);
+        }
+        if (!o) {
+            return callback({message: 'Parse error'});
+        }
+
+        o.feed.entry.forEach(function(a){
+            var link = a.link.filter(function(l){return l.rel === 'alternate';})[0];
+            videos.push({video: link.href});
+        });
+        callback(null, videos);
+    },
+    params: function(o) {
+        var path = this._config.path;
+        var parts = path.split('?');
+
+        if (!o) {
+            return parts[1] && qs.parse(parts[1]) || {};
+        }
+
+        var cur = this.params();
+        for (var i in o) {
+            cur[i] = o[i];
+        }
+
+        this._config.path = [parts[0], qs.stringify(cur)].join('?');
     }
 };
 
 module.exports = {
     vesna: vesna,
-    digg: digg
+    digg: digg,
+    youtube: youtube
 };
