@@ -34,8 +34,15 @@ var mailer = function(controller, provider, params) {
 
     var send = function(data, promise) {
         var from = params.from[utils.random(0, params.from.length-1)];
-        var attach = data.attach ? ' ' + data.attach.map(function(a){ return '-a ' + a.replace(/\s/g, '\\ '); }).join(' ') + ' ' : '';
-        var cmd = 'echo  "' + data.body + '" | mutt -s "' + data.subject + '"' + attach + ' -- ' + params.to;
+        var body = data.body && ('"' + data.body + '"') || '';
+        var subject = data.subject && ('-s "' + data.subject + '"') || '';
+
+        var attach = data.attach ? ' ' + data.attach.map(function(a){
+            return '-a "' + a.replace(/"/g, '\\"') + '"';
+        }).join(' ') + ' ' : '';
+
+        var cmd = 'echo ' + body + ' | mutt ' + subject + ' ' + attach + ' -- ' + params.to;
+
         exec(cmd, {env: {EMAIL: from}}, function(err, stdout, stderr){
             if (err) {
                 promise.resolve();

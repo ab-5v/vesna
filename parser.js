@@ -1,4 +1,5 @@
 var qs = require('querystring');
+var utils = require('./utils.js');
 var exec = require('child_process').exec
 
 // vesna.yandex.ru
@@ -138,7 +139,11 @@ attach.prototype = {
     },
     handle: function(data, callback) {
         exec('find /tmp/attach -type f', function(err, out){
-            callback(err, out.split('\n').filter(function(a){return a;}).map(function(a){return {attach: a};}))
+            callback(err, out.split('\n')
+                .filter(function(a){return a;})
+                .sort(function(){return utils.random(-1,1);})
+                .map(function(a){return {attach: a};})
+            );
         });
 
     }
