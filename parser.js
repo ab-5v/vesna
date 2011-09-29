@@ -1,4 +1,5 @@
 var qs = require('querystring');
+var exec = require('child_process').exec
 
 // vesna.yandex.ru
 var vesna = function() {
@@ -125,8 +126,26 @@ youtube.prototype = {
     }
 };
 
+// youtube.com
+var attach = function() {
+    this.types = ['attach'];
+    this._config = null;
+}
+
+attach.prototype = {
+    config: function() {
+        return this._config;
+    },
+    handle: function(data, callback) {
+        exec('find /tmp/attach -type f', function(err, out){
+            callback(err, out.split('\n').filter(function(a){return a;}).map(function(a){return {attach: a};}))
+        });
+
+    }
+};
 module.exports = {
     vesna: vesna,
     digg: digg,
-    youtube: youtube
+    youtube: youtube,
+    attach: attach
 };

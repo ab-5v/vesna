@@ -8,7 +8,7 @@ var random = utils.random;
 var extend = utils.extend;
 
 module.exports = function(options, provider, callback) {
-    var body, offset, link, thread, attach, pBody, pLink, pVideo;
+    var body, offset, link, thread, attach, pBody, pLink, pVideo, pAttach;
     var res = {};
     var o = extend({
         body: '1',
@@ -101,15 +101,22 @@ module.exports = function(options, provider, callback) {
         promises.push(pVideo);
     }
 
-    /**
     attach = random.apply(null, o.attach.split('_'));
     if (attach) {
-        res.attach = [];
-        while (attach--) {
-            res.attach.push(provider.pop('attach'));
-        }
+        pAttach = Promise.iterate(function(){
+            return provider.pop('attach', function(err, data){
+                if (err) {
+                    errs.push(err);
+                }
+                if (!res['attach']) {
+                    res['attach'] = [];
+                }
+                res['attach'].push(data);
+            });
+        }, attach);
+
+        promises.push(pAttach);
     }
-    */
 
     Promise.when(promises).then(function(){
         if (errs.length) {

@@ -11,6 +11,10 @@ module.exports = function(options, callback){
     var data = [];
     var timeout;
 
+    if (!options) {
+        return callback(null, []);
+    }
+
     var req = http.get(options, function(prx) {
         prx.setEncoding('utf8');
         prx.on('data', function (chunk) {

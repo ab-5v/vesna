@@ -2,9 +2,10 @@
     "message": {
         "body": "1",
         "subject": "1",
-        "link": "0.01_2",
-        "video": "0.1_1",
-        "thread": "1_3"
+        "link": "0",
+        "video": "0",
+        "thread": "0",
+        "attach": "3"
     },
     "from": [
         "Иван Петрович <foginat2@yandex.ru>",
