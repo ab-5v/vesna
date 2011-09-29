@@ -66,7 +66,7 @@ data_provider.prototype = {
                     if (result) {
                         return finish(null, callback, promise, result);
                     } else {
-                        return finish("can't get item", callback, promise);
+                        return finish("can't get item of " + type, callback, promise);
                     }
                 });
             });
