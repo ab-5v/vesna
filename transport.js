@@ -34,8 +34,8 @@ var mailer = function(controller, provider, params) {
 
     var send = function(data, promise) {
         var from = params.from[utils.random(0, params.from.length-1)];
-        var cmd = 'echo  "' + data.body + '" | mail -s "' + data.subject + '" ' + params.to + ' -- -f ' + from;
-        exec(cmd, function(err, stdout, stderr){
+        var cmd = 'echo  "' + data.body + '" | mutt -s "' + data.subject + '" -- ' + params.to;
+        exec(cmd, {env: {EMAIL: from}}, function(err, stdout, stderr){
             if (err) {
                 promise.resolve();
                 return console.log(err.message);

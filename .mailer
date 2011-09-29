@@ -7,11 +7,11 @@
         "thread": "1_3"
     },
     "from": [
-        "foginat2@yandex.ru",
-        "foginat3@yandex.ru",
-        "foginat4@yandex.ru",
-        "foginat5@yandex.ru",
-        "foginat6@yandex.ru"
+        "Иван Петрович <foginat2@yandex.ru>",
+        "Зина Лабузина <foginat3@yandex.ru>",
+        "Петя Васечкин <foginat4@yandex.ru>",
+        "Леонид Заборный <foginat5@yandex.ru>",
+        "Забористый Пацанчик <foginat6@yandex.ru>"
     ],
     "to": "foginat8@yandex.ru"
 }
