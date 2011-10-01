@@ -58,7 +58,8 @@ var mailer = function(controller, provider, params) {
         });
     }
 
-    Promise.iterate(function(){
+    var d = new Date()-0;
+    var it = Promise.iterate(function(){
         var sending = new Promise();
         controller(params.message, provider, function(err, data){
             if (err) {
@@ -71,6 +72,10 @@ var mailer = function(controller, provider, params) {
         });
         return sending;
     }, params.n);
+
+    Promise.when(it).then(function(){
+        console.log(params.n + ' emails sent for ' + (new Date()-d) + ' ms');
+    });
 };
 
 module.exports = {
