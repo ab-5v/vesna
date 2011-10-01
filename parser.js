@@ -32,6 +32,8 @@ vesna.prototype = {
 var digg = function() {
     this.types = ['link'];
     this.offset = 1;
+    this.plus = 10;
+    this.limit = 99;
     this._config = {
         host: 'services.digg.com',
         path: '/2.0/digg.getAll',
@@ -42,7 +44,11 @@ var digg = function() {
 
 digg.prototype = {
     config: function() {
-        this.params({offset: this.offset+=10});
+        if (this.offset + this.plus > this.limit) {
+            this.plus = this.plus < this.limit ? this.plus++ : 0;
+            this.offset = this.plus;
+        }
+        this.params({offset: this.offset += this.plus});
         return this._config;
     },
     handle: function(data, callback) {
@@ -59,6 +65,7 @@ digg.prototype = {
         o.diggs.forEach(function(a){
             diggs.push({title: a.item.title, link: a.item.link});
         });
+
         callback(null, diggs);
     },
     params: function(o) {
