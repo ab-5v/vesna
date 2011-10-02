@@ -1,10 +1,22 @@
 var fs = require('fs');
 var tester = {
-    tests: {},
-    add: function(tests){
-        for (var test in tests) {
-            this.tests[test] = tests[test];
+    tests: {
+        common: {}
+    },
+    add: function(tests, module){
+        var existing = this.tests;
+
+        if (typeof module !== 'string') {
+            module = 'common';
         }
+
+        if (!this.tests[module]) {
+            this.tests[module] = {};
+        }
+
+        Object.keys(tests).forEach(function(name){
+            existing[module][name] = tests[name];
+        });
     },
     output: function(passed, text) {
         var prefix = passed ?
@@ -14,14 +26,50 @@ var tester = {
         console.log(prefix + ': ' + text);
     },
     run: function() {
-        for (var test in this.tests) {
+        var that = this;
+        var existing = that.tests;
+        var total = 0;
+        var success = 0;
 
-            try {
-                this.tests[test]();
-                this.output(true, test);
-            } catch(e) {
-                this.output(false, test);
+        Object.keys(existing).forEach(function(module){
+            var tests = existing[module];
+            var keys = Object.keys(tests);
+            if (!keys.length) {
+                return;
             }
+
+            var moduleTotal = 0;
+            var moduleSuccess = 0;
+
+            console.log('\nRunning test in [' + module + ']:');
+
+            keys.forEach(function(key){
+                total++;
+                moduleTotal++;
+
+                try {
+                    tests[key]();
+
+                    success++;
+                    moduleSuccess++;
+                    that.output(true, key);
+                } catch(e) {
+                    that.output(false, key);
+                }
+            });
+
+            if (moduleTotal === moduleSuccess) {
+                that.output(true, 'module ' + module);
+            } else {
+                that.output(false, (moduleTotal - moduleSuccess) + '/' + moduleTotal + ' of module ' + module);
+            }
+        });
+
+        console.log('\n');
+        if (total === success) {
+            that.output(true, 'all tests');
+        } else {
+            that.output(false, (total - success) + '/' + total + ' of tests');
         }
     }
 }
