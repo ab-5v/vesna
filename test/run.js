@@ -40,6 +40,7 @@ var tester = {
 
             var moduleTotal = 0;
             var moduleSuccess = 0;
+            var pass = true;
 
             console.log('\nRunning test in [' + module + ']:');
 
@@ -49,13 +50,16 @@ var tester = {
 
                 try {
                     tests[key]();
+                } catch(e) {
+                    pass = false;
+                }
 
+                if (pass) {
                     success++;
                     moduleSuccess++;
-                    that.output(true, key);
-                } catch(e) {
-                    that.output(false, key);
                 }
+
+                that.output(pass, key);
             });
 
             if (moduleTotal === moduleSuccess) {
