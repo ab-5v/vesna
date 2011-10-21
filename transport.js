@@ -54,7 +54,9 @@ var mailer = function(controller, provider, params) {
 
             console.log('Sent from ' + from + ' to ' + params.to);
 
-            promise.resolve();
+            setTimeout(function() {
+                promise.resolve();
+            }, 1000);
         });
     }
 
